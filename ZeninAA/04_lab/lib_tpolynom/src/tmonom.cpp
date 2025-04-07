@@ -27,7 +27,7 @@ bool TMonom::operator>(const TMonom& data) const {
 bool TMonom::operator>=(const TMonom& data) const {
     return degree_ >= data.degree_;
 }
-                                                                    // Чтобы привести подобные
+                                                                    
 bool TMonom::operator==(const TMonom& data) const {
     return degree_ == data.degree_;
 }

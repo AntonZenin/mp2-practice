@@ -5,7 +5,7 @@ using namespace std;
 TPolynom::TPolynom(const string& name) : monoms() {
 	this->name = name;
 	bool res = check(name);
-	smash_pol(name);		//разбитие на полиномы
+	smash_pol(name);		
 }
 
 TPolynom::TPolynom(const headlist<TMonom>& list) {
@@ -17,10 +17,10 @@ TPolynom::TPolynom(const headlist<TMonom>& list) {
 	headlist<TMonom> tmp_l(list);
 	tmp_l.Reset();
 	while (!tmp_l.IsEnded()) {
-		InsertToSort(tmp_l.GetCurr()->data);			//сортировка мономов в порядке убывания степени
+		InsertToSort(tmp_l.GetCurr()->data);			
 		tmp_l.Next();
 	}
-	if (monoms.IsEmpty()) {							//создание пустового полинома
+	if (monoms.IsEmpty()) {							
 		TMonom zero(0, 0);
 		monoms.InsertFirst(zero);
 	}
@@ -29,7 +29,7 @@ TPolynom::TPolynom(const headlist<TMonom>& list) {
 
 TPolynom::TPolynom(const TPolynom& p) : monoms(p.monoms), name(p.name) {}
 
-bool TPolynom::check(const string& name) {														//содержит ли строка только допустимые символы
+bool TPolynom::check(const string& name) {														
 	string correct = "0123456789xyz*^+-";
 	for (char ch : name) {
 		if (correct.find(ch) == string::npos) return false;
@@ -38,7 +38,7 @@ bool TPolynom::check(const string& name) {														//содержит ли строка тол
 	return true;
 }
 
-void TPolynom::InsertToSort(const TMonom& monom) {												//для вставки монома в убывающем порядке степени
+void TPolynom::InsertToSort(const TMonom& monom) {												
 	monoms.Reset();
 	if (monom.coeff_ == 0 && monom.degree_ != 0) { return; }
 	if (monom.coeff_ == 0 && monom.degree_ == 0 && !monoms.IsEmpty()) { return; }
@@ -119,7 +119,7 @@ string TPolynom::ToString() const {
 	return str;
 }
 
-TPolynom TPolynom::operator-() const {								//возвращает полином с обратным знаком
+TPolynom TPolynom::operator-() const {								
 	TPolynom negativePol(*this);
 
 	while (!negativePol.monoms.IsEnded()) {
