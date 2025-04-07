@@ -6,54 +6,54 @@ using namespace std;
 
 int main() {
     try {
-        cout << "Enter the first polynomial:\n";
+        cout << "Input first polynom:\n";
         string P1;
         cin >> P1;
 
-        cout << "Enter the second polynomial:\n";
+        cout << "Input second polynom:\n";
         string P2;
         cin >> P2;
 
         TPolynom pol1 = TPolynom(P1);
         TPolynom pol2 = TPolynom(P2);
 
-        cout << "Your polinomials:\n";
-        cout << "pol1:\n";
+        cout << "Your polinoms:\n";
+        cout << "Polynom1:\n";
         cout << pol1.ToString() << "\n";
 
-        cout << "pol2:\n";
+        cout << "Polynom2:\n";
         cout << pol2.ToString() << "\n";
 
-        cout << "Addition (pol1 + pol2) :\n";
+        cout << "Sum of two polynoms (pol1 + pol2) :\n";
         cout << (pol1 + pol2).ToString() << "\n";
 
-        cout << "Unary minus (-pol1) :\n";
+        cout << "Unary minus (-Polynom1) :\n";
         cout << (-pol1).ToString() << "\n";
 
-        cout << "Subtraction (pol1 - pol2) :\n";
+        cout << "Subtraction (Polynom1 - Polynom2) :\n";
         cout << (pol1 - pol2).ToString() << "\n";
 
-        cout << "Multiplication (pol1 * pol2) :\n";
+        cout << "Mult (Polynom1 * Polynom2) :\n";
         cout << (pol1 * pol2).ToString() << "\n";
 
-        cout << "pol1 By X:\n";
+        cout << "Polynom1 derivation by X:\n";
         cout << (pol1.dx()).ToString() << "\n";
 
-        cout << "pol1 By Y:\n";
+        cout << "Polynom1 derivation by Y:\n";
         cout << (pol1.dy()).ToString() << "\n";
 
-        cout << "pol1 By Z:\n";
+        cout << "Polynom1 derivation by Z:\n";
         cout << (pol1.dz()).ToString() << "\n";
 
         double x, y, z;
-        cout << "enter value of X: ";
+        cout << "Input value of X: ";
         cin >> x;
-        cout << "enter value of Y: ";
+        cout << "Input value of Y: ";
         cin >> y;
-        cout << "enter value of Z: ";
+        cout << "Input value of Z: ";
         cin >> z;
 
-        cout << "pol(x, y, z) => pol1(" << x << ", " << y << ", " << z << "):\n";
+        cout << "polynom(x, y, z) => Polynom1(" << x << ", " << y << ", " << z << "):\n";
         cout << pol1(x, y, z);
     }
     catch (const exception ex) {

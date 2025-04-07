@@ -14,7 +14,7 @@ protected:
 public:
 	TList();
 	TList(const TList<TData>&);
-	TList(TNode<TData>*); //////////
+	TList(TNode<TData>*); 
 	virtual ~TList();
 	TNode<TData>* Search(const TData&);
 	virtual void InsertFirst(const TData&);
@@ -256,7 +256,7 @@ void TList<TData>::Reset() {
 template <typename TData>
 void TList<TData>::Next() {
 	if (pCurr == pStop)
-		throw exception("end of the list");
+		throw exception("End of the list");
 	pPrev = pCurr;
 	pCurr = pCurr->pNext;
 }

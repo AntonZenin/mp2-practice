@@ -13,9 +13,9 @@ protected:
     string name;
     headlist<TMonom> monoms;
 
-    void smash_pol(const string& name);                     //разбитие полинома на мономы
-    bool check(const string& name);                        //проверка на то содержатся ли в строке допустимые символы 
-    void InsertToSort(const TMonom& monom);                 //сортировка мономов по убыванию степени
+    void smash_pol(const string& name);                     
+    bool check(const string& name);                         
+    void InsertToSort(const TMonom& monom);                 
 public:
     TPolynom() : monoms() {}
     TPolynom(const string& name);
@@ -29,7 +29,7 @@ public:
     TPolynom operator*(const TPolynom& p);
     bool operator==(const TPolynom& p) const;
 
-    string TPolynom::ToString() const;              //получение строкового представления полинома
+    string TPolynom::ToString() const;              
 
     double operator()(double x, double y, double z) const;
     TPolynom dx() const;
