@@ -17,6 +17,7 @@ public:
 	TList(TNode<TData>*); 
 	virtual ~TList();
 	TNode<TData>* Search(const TData&);
+	void Copy(const TList& l); 
 	virtual void InsertFirst(const TData&);
 	virtual void InsertLast(const TData&);
 	void InsertBefore(const TData&, const TData&);
@@ -29,6 +30,7 @@ public:
 	TNode<TData>* GetCurr() const;
 	virtual bool IsEnded() const;
 	bool IsEmpty() const;
+	
 	bool IsFull() const;
 
 	friend std::ostream& operator<<(std::ostream& out, const TList<TData>& list) {
@@ -58,17 +60,7 @@ bool TList<TData>::IsEmpty() const {
 }
 
 template <typename TData>
-TList<TData>::TList(const TList& l) {
-	if (l.IsEmpty())
-	{
-		pFirst = nullptr;
-		pLast = nullptr;
-		pCurr = nullptr;
-		pPrev = nullptr;
-		pStop = nullptr;
-		return;
-	}
-
+void TList<TData>::Copy(const TList& l) {
 	pFirst = new TNode<TData>(l.pFirst->data);
 	TNode<TData>* tmp = pFirst;
 	TNode<TData>* ltmp = l.pFirst->pNext;
@@ -81,7 +73,21 @@ TList<TData>::TList(const TList& l) {
 	pLast = tmp;
 	pCurr = pFirst;
 	pPrev = nullptr;
-	pStop = nullptr;
+	pStop = nullptr; 
+}
+
+template <typename TData>
+TList<TData>::TList(const TList& l) {         
+	if (l.IsEmpty())
+	{
+		pFirst = nullptr;
+		pLast = nullptr;
+		pCurr = nullptr;
+		pPrev = nullptr;
+		pStop = nullptr;
+		return;
+	}
+	Copy(l);
 }
 
 template <typename TData>
@@ -150,6 +156,8 @@ TNode<TData>* TList<TData>::Search(const TData& data) {
 	pPrev = prev;
 	return curr;
 }
+
+
 
 template <typename TData>
 void TList<TData>::InsertFirst(const TData& data) {
@@ -220,12 +228,6 @@ void TList<TData>::Remove(const TData& where)
 	TNode<TData>* pWhere = Search(where);
 	if (pWhere == nullptr) {
 		throw exception("no elements");
-	}
-
-	if (pWhere == pFirst && pWhere->pNext == pStop)
-	{
-		Clear();
-		return;
 	}
 	if (pWhere == pFirst)
 	{

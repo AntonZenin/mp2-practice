@@ -102,22 +102,7 @@ const headlist<TData>& headlist<TData>::operator=(const headlist<TData>& l) {
 	}
 
 	Clear();
-
-	pFirst = new TNode<TData>(l.pFirst->data);
-	TNode<TData>* tmp = pFirst;
-	TNode<TData>* ltmp = l.pFirst->pNext;
-	while (ltmp != l.pStop)
-	{
-		tmp->pNext = new TNode<TData>(ltmp->data);
-		tmp = tmp->pNext;
-		ltmp = ltmp->pNext;
-	}
-	pLast = tmp;
-	pLast->pNext = pHead;
-	pHead->pNext = pFirst;
-	pCurr = pFirst;
-	pPrev = nullptr;
-	pStop = nullptr;
+	Copy(l); 
 
 	return *(this);
 }
