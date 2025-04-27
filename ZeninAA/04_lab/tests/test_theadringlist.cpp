@@ -1,184 +1,181 @@
-#include "list.h"
 #include "ringheadlist.h"
 #include <gtest.h>
 
-TEST(headlist, can_Reset_hr_list)
+TEST(RingHeadList, can_create_list)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.Reset();
-	EXPECT_EQ(1, hr_list.GetCurr()->data);
+    ASSERT_NO_THROW(RingHeadList<int> list);
 }
 
-TEST(headlist, can_copy_hr_list)
+TEST(RingHeadList, can_copy_list)
 {
-	headlist<int> hr_list1;
-	hr_list1.InsertLast(1);
-	headlist<int> hr_list2(hr_list1);
-	hr_list1.Reset();
-	EXPECT_EQ(hr_list1.GetCurr()->data, hr_list2.GetCurr()->data);
-}
-TEST(headlist, can_assign_hr_list)
-{
-	headlist<int> hr_list1;
-	hr_list1.InsertLast(1);
-	hr_list1.InsertLast(2);
-	headlist<int> hr_list2;
-	hr_list2.InsertLast(3);
-	hr_list2 = hr_list1;
-	hr_list1.Reset();
-	EXPECT_EQ(hr_list1.GetCurr()->data, hr_list2.GetCurr()->data);
+    RingHeadList<int> list;
+    ASSERT_NO_THROW(RingHeadList<int> list1(list));
 }
 
-TEST(headlist, can_insert_element) {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	EXPECT_EQ(1, hr_list.GetCurr()->data);
+TEST(RingHeadList, copied_lists_are_equal)
+{
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    RingHeadList<int> list1(list);
+    EXPECT_TRUE(list == list1);
 }
 
-TEST(headlist, can_get_Next_elemet)
+TEST(RingHeadList, copied_lists_have_different_memory)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    RingHeadList<int> list;
+    list.push_front(Node);
+    RingHeadList<int> list1(list);
+    list1.push_front(Node1);
+    EXPECT_FALSE(list == list1);
 }
 
-TEST(headlist, check_hr_list_cannot_do_Next_method_at_Head)
+TEST(RingHeadList, can_find_existing_key)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.Next();
-	ASSERT_ANY_THROW(hr_list.Next());
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(headlist, can_insert_element_at_beginning)
+TEST(RingHeadList, cant_find_non_existing_key)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertFirst(2);
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_EQ(list.search(10), nullptr);
 }
 
-TEST(headlist, can_insert_element_in_middle)
+TEST(RingHeadList, can_push_front)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(3);
-	hr_list.Reset();
-	hr_list.InsertAfter(2, hr_list.GetCurr()->data);
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    ASSERT_NO_THROW(list.push_front(Node));
 }
 
-TEST(headlist, can_remove_first_element)
+TEST(RingHeadList, pushed_front_node_is_present)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.Remove(1);
-	hr_list.Reset();
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(headlist, can_remove_last_element)
+TEST(RingHeadList, cant_push_back_empty_node)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.Remove(2);
-	hr_list.Reset();
-	hr_list.Next();
-	EXPECT_TRUE(hr_list.IsEnded());
+    RingHeadList<int> list;
+    TNode<int>* node = nullptr;
+    ASSERT_ANY_THROW(list.push_back(node));
 }
 
-TEST(headlist, can_clear_hr_list)
+TEST(RingHeadList, can_push_back)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.InsertLast(3);
-	hr_list.Clear();
-	EXPECT_TRUE(hr_list.IsEmpty());
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    ASSERT_NO_THROW(list.push_back(Node));
 }
 
-TEST(headlist, can_insert_element_before_current)
+TEST(RingHeadList, pushed_back_node_is_present)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(3);
-	hr_list.InsertBefore(2, hr_list.GetCurr()->data);
-	hr_list.Reset();
-	hr_list.Next();
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_back(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(headlist, can_insert_element_after_current)
+TEST(RingHeadList, can_push_after)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(3);
-	hr_list.InsertAfter(2, hr_list.GetCurr()->data);
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.push_after(Node1, 1));
 }
 
-TEST(headlist, can_check_if_hr_list_is_empty)
+TEST(RingHeadList, cant_push_after_non_existind_key)
 {
-	headlist<int> hr_list;
-	EXPECT_TRUE(hr_list.IsEmpty());
-	hr_list.InsertLast(1);
-	EXPECT_FALSE(hr_list.IsEmpty());
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.push_after(Node1, 100));
 }
 
-TEST(headlist, can_find_element_by_value)
+TEST(RingHeadList, pushed_after_node_is_present)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.InsertLast(3);
-	EXPECT_EQ(2, hr_list.Search(2)->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list.push_after(Node1, 1);
+    EXPECT_NE(list.search(10), nullptr);
 }
 
-TEST(headlist, can_assign_empty_list)
+TEST(RingHeadList, can_push_before)
 {
-	headlist<int> hr_list1;
-	headlist<int> hr_list2;
-	hr_list2 = hr_list1;
-	EXPECT_TRUE(hr_list2.IsEmpty());
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.push_before(Node1, 1));
 }
 
-TEST(headlist, can_insert_element_in_empty_list)
+TEST(RingHeadList, cant_push_before_non_existind_key)
 {
-	headlist<int> hr_list;
-	hr_list.InsertFirst(1);
-	EXPECT_EQ(1, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.push_after(Node1, 100));
 }
 
-TEST(headlist, can_search_nonexistent_element)
+TEST(RingHeadList, pushed_before_node_is_present)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.InsertLast(2);
-	hr_list.InsertLast(3);
-	EXPECT_EQ(nullptr, hr_list.Search(4));
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list.push_after(Node1, 1);
+    EXPECT_NE(list.search(10), nullptr);
 }
 
-TEST(headlist, can_correctly_copy_list)
+TEST(RingHeadList, can_remove_existing_key)
 {
-	headlist<int> hr_list1;
-	hr_list1.InsertLast(1);
-	hr_list1.InsertLast(2);
-	headlist<int> hr_list2(hr_list1);
-	hr_list1.RemoveFirst();
-	EXPECT_NE(hr_list1.GetCurr()->data, hr_list2.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.remove(1));
 }
 
-TEST(headlist, can_insert_after_end)
+TEST(RingHeadList, cant_remove_non_existing_key)
 {
-	headlist<int> hr_list;
-	hr_list.InsertLast(1);
-	hr_list.Next();
-	hr_list.InsertLast(2);
-	EXPECT_EQ(2, hr_list.GetCurr()->data);
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.remove(10));
+}
+
+TEST(RingHeadList, removed_key_is_not_present)
+{
+    RingHeadList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    list.remove(1);
+    EXPECT_EQ(list.search(1), nullptr);
+}
+
+TEST(RingHeadList, can_assign_lists)
+{
+    RingHeadList<int> list;
+    RingHeadList<int> list1;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list1.push_front(Node1);
+    ASSERT_NO_THROW(list = list1);
+}
+
+TEST(RingHeadList, assigned_lists_are_equal)
+{
+    RingHeadList<int> list;
+    RingHeadList<int> list1;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list1.push_front(Node1);
+    list = list1;
+    EXPECT_TRUE(list == list1);
 }

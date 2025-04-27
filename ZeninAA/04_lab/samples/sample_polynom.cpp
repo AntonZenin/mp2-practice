@@ -1,63 +1,153 @@
 #include "list.h"
 #include "tpolynom.h"
+#include "tmonom.h"
 #include <iostream>
 #include <string>
 using namespace std;
 
+void calculate_polynomial(Polinom& p);
+
+void handle_addition(Polinom& p);
+void handle_subtraction(Polinom& p);
+void handle_multiplication(Polinom& p);
+void handle_evaluation(Polinom& p);
+
 int main() {
-    try {
-        cout << "Input first polynom:\n";
-        string P1;
-        cin >> P1;
+    int option = 1;
+    Polinom current_poly;
 
-        cout << "Input second polynom:\n";
-        string P2;
-        cin >> P2;
+    while (option != 0) {
+        try {
+            switch (option) {
+            case 1:
+                cout << "Enter polynomial:\n";
+                {
+                    string input;
+                    cin >> input;
+                    Polinom p(input);
+                    calculate_polynomial(p);
+                    current_poly = p;
+                }
+                break;
+            case 2:
+                calculate_polynomial(current_poly);
+                break;
+            default:
+                throw invalid_argument("Invalid option");
+            }
+        }
+        catch (const exception& e) {
+            cerr << "Error: " << e.what() << endl;
+        }
 
-        TPolynom pol1 = TPolynom(P1);
-        TPolynom pol2 = TPolynom(P2);
-
-        cout << "Your polinoms:\n";
-        cout << "Polynom1:\n";
-        cout << pol1.ToString() << "\n";
-
-        cout << "Polynom2:\n";
-        cout << pol2.ToString() << "\n";
-
-        cout << "Sum of two polynoms (pol1 + pol2) :\n";
-        cout << (pol1 + pol2).ToString() << "\n";
-
-        cout << "Unary minus (-Polynom1) :\n";
-        cout << (-pol1).ToString() << "\n";
-
-        cout << "Subtraction (Polynom1 - Polynom2) :\n";
-        cout << (pol1 - pol2).ToString() << "\n";
-
-        cout << "Mult (Polynom1 * Polynom2) :\n";
-        cout << (pol1 * pol2).ToString() << "\n";
-
-        cout << "Polynom1 derivation by X:\n";
-        cout << (pol1.dx()).ToString() << "\n";
-
-        cout << "Polynom1 derivation by Y:\n";
-        cout << (pol1.dy()).ToString() << "\n";
-
-        cout << "Polynom1 derivation by Z:\n";
-        cout << (pol1.dz()).ToString() << "\n";
-
-        double x, y, z;
-        cout << "Input value of X: ";
-        cin >> x;
-        cout << "Input value of Y: ";
-        cin >> y;
-        cout << "Input value of Z: ";
-        cin >> z;
-
-        cout << "polynom(x, y, z) => Polynom1(" << x << ", " << y << ", " << z << "):\n";
-        cout << pol1(x, y, z);
+        cout << "\n(2 = continue, 1 = new, 0 = exit)\n";
+        cin >> option;
     }
-    catch (const exception ex) {
-        cerr << ex.what() << "\n";
-    }
+
     return 0;
 }
+
+void calculate_polynomial(Polinom& p) {
+    cout << "Choose operation:\n"
+        << "(+) sum\n"
+        << "(-) subtract polynomial\n"
+        << "(*) multiply\n"
+        << "(#) evaluate\n";
+
+    char op;
+    cin >> op;
+
+    try {
+        switch (op) {
+        case '+': handle_addition(p); break;
+        case '-': handle_subtraction(p); break;
+        case '*': handle_multiplication(p); break;
+        case '#': handle_evaluation(p); break;
+        default: throw invalid_argument("Invalid operator");
+        }
+    }
+    catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+    }
+}
+
+void handle_addition(Polinom& p) {
+    cout << "constant(0) or polynomial(1)?\n";
+    char choice;
+    cin >> choice;
+
+    if (choice == '0') {
+        double constant;
+        cout << "Enter constant:\n";
+        cin >> constant;
+        cout << (p + constant);
+    }
+    else if (choice == '1') {
+        cout << "Enter second polynomial:\n";
+        string input;
+        cin >> input;
+        Polinom p1(input);
+        cout << (p + p1);
+    }
+    else {
+        throw invalid_argument("Invalid choice");
+    }
+}
+
+void handle_subtraction(Polinom& p) {
+    cout << "constant(0) or polynomial(1)?\n";
+    char choice;
+    cin >> choice;
+
+    if (choice == '0') {
+        double constant;
+        cout << "Enter constant:\n";
+        cin >> constant;
+        cout << (p - constant);
+    }
+    else if (choice == '1') {
+        cout << "Enter second polynomial:\n";
+        string input;
+        cin >> input;
+        Polinom p1(input);
+        cout << (p - p1);
+    }
+    else {
+        throw invalid_argument("Invalid choice");
+    }
+}
+
+void handle_multiplication(Polinom& p) {
+    cout << "constant(0) or polynomial(1)?\n";
+    char choice;
+    cin >> choice;
+
+    if (choice == '0') {
+        double constant;
+        cout << "Enter constant:\n";
+        cin >> constant;
+        cout << (p * constant);
+    }
+    else if (choice == '1') {
+        cout << "Enter second polynomial:\n";
+        string input;
+        cin >> input;
+        Polinom p1(input);
+        cout << (p * p1);
+    }
+    else {
+        throw invalid_argument("Invalid choice");
+    }
+}
+
+void handle_evaluation(Polinom& p) {
+    double x, y, z;
+    cout << "Value of x is: ";
+    cin >> x;
+    cout << "\nValue of y is: ";
+    cin >> y;
+    cout << "\nValue of z is: ";
+    cin >> z;
+    cout << "\n" << p(x, y, z);
+}
+

@@ -1,334 +1,401 @@
-#include "ringheadlist.h"
 #include "tpolynom.h"
-using namespace std;
+#include <math.h>
 
-TPolynom::TPolynom(const string& name) : monoms() {
-	this->name = name;
-	bool res = check(name);
-	smash_pol(name);		
+Monom::Monom()
+{
+    degree = -1;
+    coeff = 0;
+}
+Monom::Monom(int degree, double coeff)
+{
+    if (degree < 0 || degree > 999)
+    {
+        throw "degree is out of range!";
+    }
+    this->degree = degree;
+    this->coeff = coeff;
+}
+Monom::Monom(const string& s)
+{
+    
+    string tocken;
+    char c;
+    double coeff = 1;
+    int i = 0, j = 0, k = 0;
+    int a = 0;
+    for (a; a < s.size(); a++)
+    {
+        c = s[a];
+        if (strchr("-0123456789xyz*^.", c) == nullptr)
+        {
+            throw "incorrect input!";
+        }
+        if (c == '-')
+        {
+            if (strchr("xyz", s[a + 1]))
+            {
+                coeff = -1;
+                continue;
+            }
+            tocken += c;
+            continue;
+        }
+        if (strchr("xyz", c))
+        {
+            if (s[a + 1] == '*' || (a + 1) == s.size())
+            {
+                switch (c)
+                {
+                case 'x':
+                    i++;
+                    break;
+                case 'y':
+                    j++;
+                    break;
+                case 'z':
+                    k++;
+                    break;
+                }
+                a++;
+            }
+            continue;
+        }
+        if (c == '^')
+        {
+            if ((a + 2 < s.size()) && strchr("0123456789", s[a + 2]))
+            {
+                throw "Degrees should be less than 10 and greater than 0!";
+            }
+            switch (s[a - 1])
+            {
+            case 'x':
+                tocken += s[a + 1];
+                i = stoi(tocken);
+                tocken.clear();
+                break;
+            case 'y':
+                tocken += s[a + 1];
+                j = stoi(tocken);
+                tocken.clear();
+                break;
+            case 'z':
+                tocken += s[a + 1];
+                k = stoi(tocken);
+                tocken.clear();
+                break;
+            }
+            a++;
+            continue;
+        }
+        if (c == '*')
+        {
+            if ((a - 2 > 0) && s[a - 2] == '^')
+            {
+                continue;
+            }
+            coeff = stof(tocken);
+            tocken.clear();
+            continue;
+        }
+        tocken += c;
+    }
+    if (!(tocken.empty()))
+    {
+        coeff = stof(tocken);
+    }
+    this->degree = 100 * i + 10 * j + k;
+    this->coeff = coeff;
 }
 
-TPolynom::TPolynom(const headlist<TMonom>& list) {
-	if (list.IsEmpty()) {
-		name = "";
-		monoms = headlist<TMonom>();
-		return;
-	}
-	headlist<TMonom> tmp_l(list);
-	tmp_l.Reset();
-	while (!tmp_l.IsEnded()) {
-		InsertToSort(tmp_l.GetCurr()->data);			
-		tmp_l.Next();
-	}
-	if (monoms.IsEmpty()) {							
-		TMonom zero(0, 0);
-		monoms.InsertFirst(zero);
-	}
-	name = ToString();
+int Monom::GetDegree() const
+{
+    return degree;
+}
+double Monom::GetCoeff() const
+{
+    return coeff;
 }
 
-TPolynom::TPolynom(const TPolynom& p) : monoms(p.monoms), name(p.name) {}
-
-bool TPolynom::check(const string& name) {														
-	string correct = "0123456789xyz*^+-";
-	for (char ch : name) {
-		if (correct.find(ch) == string::npos) return false;
-	}
-
-	return true;
+bool Monom::operator == (const Monom& m) const
+{
+    return (degree == m.degree);
+}
+bool Monom::operator != (const Monom& m)const
+{
+    return !(*this == m);
+}
+bool Monom::operator > (const Monom& m)const
+{
+    return (degree > m.degree);
+}
+bool Monom::operator < (const Monom& m)const
+{
+    return (degree < m.degree);
+}
+bool Monom::operator >= (const Monom& m)const
+{
+    return (degree >= m.degree);
+}
+bool Monom::operator <= (const Monom& m)const
+{
+    return (degree <= m.degree);
 }
 
-void TPolynom::InsertToSort(const TMonom& monom) {												
-	monoms.Reset();
-	if (monom.coeff_ == 0 && monom.degree_ != 0) { return; }
-	if (monom.coeff_ == 0 && monom.degree_ == 0 && !monoms.IsEmpty()) { return; }
-
-	if (monoms.IsEmpty() || monoms.GetCurr()->data > monom) {
-		monoms.InsertFirst(monom);
-		return;
-	}
-
-	while (!monoms.IsEnded() && monoms.GetCurr()->data < monom) {
-		monoms.Next();
-	}
-	if (monoms.IsEnded()) {
-		monoms.InsertLast(monom);
-		return;
-	}
-
-	if (monoms.GetCurr()->data == monom) {
-		monoms.GetCurr()->data.coeff_ = monoms.GetCurr()->data.coeff_ + monom.coeff_;
-		if (monoms.GetCurr()->data.coeff_ == 0) {
-			monoms.Remove(monoms.GetCurr()->data);
-		}
-		return;
-	}
-	monoms.InsertBefore(monom, monoms.GetCurr()->data);
+Monom Monom:: operator+(const Monom& m)
+{
+    if (*this != m)
+    {
+        throw "monoms have to be same degree to sum";
+    }
+    Monom res(degree, coeff + m.coeff);
+    return res;
+}
+Monom Monom:: operator-(const Monom& m)
+{
+    if (*this != m)
+    {
+        throw "monoms have to be same degree to sub";
+    }
+    Monom res(degree, coeff - m.coeff);
+    return res;
+}
+Monom Monom::operator*(const Monom& m)
+{
+    if (((degree) / 100 + (m.degree) / 100) > 9 || (((degree) / 10) % 10 + ((m.degree) / 10) % 10) > 9 || ((degree) % 10 + (m.degree) % 10) > 9)
+    {
+        throw "degree is out of range!";
+    }
+    Monom res(degree + m.degree, coeff * m.coeff);
+    return res;
 }
 
-
-string TPolynom::ToString() const {
-	string str;
-	TPolynom new_this(*this);
-	if (new_this.monoms.IsEmpty()) {
-		return "0.00";
-	}
-	bool firstTerm = true;
-	new_this.monoms.Reset();
-
-	if (new_this.monoms.GetCurr()->data.coeff_ == 0
-		&&
-		new_this.monoms.GetCurr()->data.degree_ == 0
-		) {
-		return "0";
-	}
-	while (!new_this.monoms.IsEnded()) {
-		int deg = new_this.monoms.GetCurr()->data.degree_;
-		double coeff = new_this.monoms.GetCurr()->data.coeff_;
-		int x = deg / 100;
-		int y = (deg % 100) / 10;
-		int z = deg % 10;
-		if (coeff != 0) {
-			if (!firstTerm) {
-				str += ((coeff > 0) ? "+" : "-");
-			}
-			else {
-				if (coeff < 0) str += '-';
-				firstTerm = false;
-			}
-			if (abs(coeff) != 1 || deg == 0) {
-				char buf[15];
-				sprintf(buf, "%.2f", abs(coeff));
-				str += string(buf);
-			}
-			string mul_symbol = ((abs(coeff) == 1) ? "" : "*");
-			if (x != 0) {
-				str += (mul_symbol + "x") + ((x != 1) ? "^" + to_string(x) : "");
-			}
-			if (y != 0) {
-				mul_symbol = (x == 0) ? mul_symbol : "*";
-				str += (mul_symbol + "y") + ((y != 1) ? "^" + to_string(y) : "");
-			}
-			if (z != 0) {
-				mul_symbol = (x == 0 && y == 0) ? mul_symbol : "*";
-				str += (mul_symbol + "z") + ((z != 1) ? "^" + to_string(z) : "");
-			}
-		}
-		new_this.monoms.Next();
-	}
-	return str;
+double Monom::operator()(double x, double y, double z)const
+{
+    double res = 0.0;
+    res = coeff * pow(x, (degree / 100)) * pow(y, ((degree / 10) % 10)) * pow(z, (degree % 10));
+    return res;
 }
 
-TPolynom TPolynom::operator-() const {								
-	TPolynom negativePol(*this);
-
-	while (!negativePol.monoms.IsEnded()) {
-		negativePol.monoms.GetCurr()->data.coeff_ = negativePol.monoms.GetCurr()->data.coeff_ * (-1);
-		negativePol.monoms.Next();
-	}
-	negativePol.name = negativePol.ToString();
-	return negativePol;
+Polinom::Polinom(const string& infix)
+{
+    this->infix = infix;
+    char c;
+    string tocken;
+    tocken += infix[0];
+    for (int i = 1; i < infix.size(); i++)
+    {
+        c = infix[i];
+        if (c == '+')
+        {
+            Monom m(tocken);
+            insert(m);
+            tocken.clear();
+            continue;
+        }
+        if (c == '-')
+        {
+            Monom m(tocken);
+            insert(m);
+            tocken = "-";
+            continue;
+        }
+        tocken += c;
+    }
+    if (!(tocken.empty()))
+    {
+        Monom m(tocken);
+        insert(m);
+    }
 }
 
-TPolynom TPolynom::operator+(const TPolynom& p) {
-	TPolynom res(p);
-
-	monoms.Reset();
-	while (!monoms.IsEnded()) {
-		res.InsertToSort(monoms.GetCurr()->data);
-		monoms.Next();
-	}
-	if (res.monoms.IsEmpty()) {
-		TMonom zero(0, 0);
-		res.monoms.InsertFirst(zero);
-	}
-	res.name = res.ToString();
-	return res;
+Monom Polinom::getMonom()const
+{
+    int a = polinom.getCurr()->key.GetDegree();
+    double b = polinom.getCurr()->key.GetCoeff();
+    Monom m(a, b);
+    return m;
+}
+Monom Polinom::last_smaller(const Monom m)
+{
+    polinom.reset();
+    Monom a;
+    if (polinom.getCurr() == nullptr)
+    {
+        return a;
+    }
+    while (!(polinom.is_ended()))
+    {
+        if (polinom.getCurr()->key <= m)
+        {
+            a = polinom.getCurr()->key;
+        }
+        polinom.next();
+    }
+    return a;
+}
+void Polinom::insert(Monom& m)
+{
+    TNode<Monom>* b;
+    polinom.reset();
+    if (polinom.getCurr() == nullptr)
+    {
+        b = new TNode<Monom>(m);
+        polinom.push_front(b);
+        return;
+    }
+    Monom a = last_smaller(m);
+    if (m == a)
+    {
+        m = a + m;
+        if (m.GetCoeff() == 0)
+        {
+            polinom.remove(a);
+            return;
+        }
+        polinom.remove(a);
+        a = last_smaller(m);
+    }
+    b = new TNode<Monom>(m);
+    polinom.push_after(b, a);
 }
 
-TPolynom TPolynom::operator-(const TPolynom& p) {
-	TPolynom res = (*this) + (-p);
-	res.name = res.ToString();
-	return res;
+bool Polinom::operator == (const Polinom& p) const
+{
+    return (polinom == p.polinom);
+}
+bool Polinom::operator != (const Polinom& p) const
+{
+    return !(*this == p);
 }
 
-TPolynom TPolynom::operator*(const TPolynom& p) {
-	TPolynom res_pol;
-	TPolynom tmp_p(p);
-
-	monoms.Reset();
-	while (!monoms.IsEnded()) {
-		tmp_p.monoms.Reset();
-		while (!tmp_p.monoms.IsEnded()) {
-			TMonom mon1 = monoms.GetCurr()->data;
-			TMonom mon2 = tmp_p.monoms.GetCurr()->data;
-			double newCoeff = mon1.coeff_ * mon2.coeff_;
-			int newDegree = mon1.degree_ + mon2.degree_;
-
-			if (newDegree > 999) throw exception("invalid_degree");
-
-			res_pol.InsertToSort(TMonom(newCoeff, newDegree));
-			tmp_p.monoms.Next();
-		}
-
-		monoms.Next();
-	}
-	if (res_pol.monoms.IsEmpty()) {
-		TMonom zero(0, 0);
-		res_pol.monoms.InsertFirst(zero);
-	}
-	res_pol.name = res_pol.ToString();
-	return res_pol;
+Polinom Polinom::operator+(const Monom& m)
+{
+    Polinom copy(*this);
+    Monom mcopy(m);
+    copy.insert(mcopy);
+    return copy;
+}
+Polinom Polinom::operator-(const Monom& m)
+{
+    Polinom copy(*this);
+    Monom mcopy(m.GetDegree(), -m.GetDegree());
+    copy.insert(mcopy);
+    return copy;
+}
+Polinom Polinom::operator*(const Monom& m)
+{
+    Polinom copy(*this);
+    Monom mcopy(m);
+    copy.polinom.reset();
+    while (!(copy.polinom.is_ended()))
+    {
+        copy.polinom.getCurr()->key = mcopy * copy.polinom.getCurr()->key;
+        copy.polinom.next();
+    }
+    return copy;
 }
 
-bool TPolynom::operator==(const TPolynom& p) const {
-	TPolynom new_this(*this);
-	TPolynom new_p(p);
-
-	while (!new_p.monoms.IsEnded() && !new_this.monoms.IsEnded()) {
-		if (new_p.monoms.GetCurr()->data != new_this.monoms.GetCurr()->data) return false;
-		new_p.monoms.Next();
-		new_this.monoms.Next();
-	}
-	if (new_p.monoms.IsEnded() && new_this.monoms.IsEnded()) return true;
-
-	return false;
+Polinom Polinom::operator+(double a)
+{
+    Monom m(0, a);
+    Polinom res;
+    res = (*this) + m;
+    return res;
+}
+Polinom Polinom::operator-(double a)
+{
+    Monom m(0, a);
+    Polinom res;
+    res = (*this) - m;
+    return res;
+}
+Polinom Polinom::operator*(double a)
+{
+    Monom m(0, a);
+    Polinom res;
+    res = (*this) * m;
+    return res;
 }
 
-double TPolynom::operator()(double x, double y, double z) const {
-	double result = 0;
-	TPolynom tmp_this(*this);
-
-	while (!tmp_this.monoms.IsEnded()) {
-		double mn;
-		mn = tmp_this.monoms.GetCurr()->data.coeff_;
-		mn *= pow(x, tmp_this.monoms.GetCurr()->data.degree_ / 100);
-		mn *= pow(y, tmp_this.monoms.GetCurr()->data.degree_ / 10 % 10);
-		mn *= pow(z, tmp_this.monoms.GetCurr()->data.degree_ % 10);
-
-		result += mn;
-		tmp_this.monoms.Next();
-	}
-	return result;
+Polinom Polinom::operator+(const Polinom& p)
+{
+    if (this == &p)
+    {
+        Polinom p1(p), res;
+        res = *this + p1;
+        return res;
+    }
+    Polinom copy(p), res(*this);
+    copy.polinom.reset();
+    while (!(copy.polinom.is_ended()))
+    {
+        Monom m = copy.getMonom();
+        res = res + m;
+        copy.polinom.next();
+    }
+    return res;
+}
+Polinom Polinom::operator-(const Polinom& p)
+{
+    if (this == &p)
+    {
+        Polinom res;
+        return res;
+    }
+    Polinom res(p);
+    res = res * (-1);
+    res = res + (*this);
+    return res;
+}
+Polinom Polinom::operator*(const Polinom& p)
+{
+    if (this == &p)
+    {
+        Polinom p1(p), res;
+        res = *this * p1;
+        return res;
+    }
+    Polinom copy(p), myself(*this), res;
+    copy.polinom.reset();
+    myself.polinom.reset();
+    if ((myself.polinom.getCurr() == nullptr) || (copy.polinom.getCurr() == nullptr))
+    {
+        return *this;
+    }
+    while (!(copy.polinom.is_ended()))
+    {
+        Monom m = copy.getMonom();
+        res = res + (myself * m);
+        copy.polinom.next();
+    }
+    return res;
 }
 
-TPolynom TPolynom::dx() const {
-	TPolynom dx_pol;
-	TPolynom tmp_this(*this);
-
-	while (!tmp_this.monoms.IsEnded()) {
-		if (tmp_this.monoms.GetCurr()->data.degree_ / 100 != 0) {
-			double newCoeff = tmp_this.monoms.GetCurr()->data.coeff_ * (tmp_this.monoms.GetCurr()->data.degree_ / 100);
-			int newDegree = tmp_this.monoms.GetCurr()->data.degree_ - 100;
-
-			dx_pol.InsertToSort(TMonom(newCoeff, newDegree));
-		}
-
-		tmp_this.monoms.Next();
-	}
-
-	return dx_pol;
+const Polinom& Polinom::operator = (const Polinom& p)
+{
+    if (this == &p)
+    {
+        return *this;
+    }
+    infix = p.infix;
+    polinom = p.polinom;
+    return *this;
 }
 
-TPolynom TPolynom::dy() const {
-	TPolynom dy_pol;
-	TPolynom tmp_this(*this);
-
-	while (!tmp_this.monoms.IsEnded()) {
-		if (tmp_this.monoms.GetCurr()->data.degree_ / 10 % 10 != 0) {
-			double newCoeff = tmp_this.monoms.GetCurr()->data.coeff_ * (tmp_this.monoms.GetCurr()->data.degree_ / 10 % 10);
-			int newDegree = tmp_this.monoms.GetCurr()->data.degree_ - 10;
-
-			dy_pol.InsertToSort(TMonom(newCoeff, newDegree));
-		}
-
-		tmp_this.monoms.Next();
-	}
-
-	return dy_pol;
-}
-
-TPolynom TPolynom::dz() const {
-	TPolynom dz_pol;
-	TPolynom tmp_this(*this);
-
-	while (!tmp_this.monoms.IsEnded()) {
-		if (tmp_this.monoms.GetCurr()->data.degree_ % 10 != 0) {
-			double newCoeff = tmp_this.monoms.GetCurr()->data.coeff_ * (tmp_this.monoms.GetCurr()->data.degree_ % 10);
-			int newDegree = tmp_this.monoms.GetCurr()->data.degree_ - 1;
-
-			dz_pol.InsertToSort(TMonom(newCoeff, newDegree));
-		}
-
-		tmp_this.monoms.Next();
-	}
-
-	return dz_pol;
-}
-
-const TPolynom& TPolynom::operator=(const TPolynom& p) {
-	if (this == &p) {
-		return (*this);
-	}
-
-	name = p.name;
-	monoms = p.monoms;
-
-	return *(this);
-}
-
-
-void TPolynom::smash_pol(const string& name) {
-	string str = name;
-	while (!str.empty()) {
-		int degree = 0;
-		size_t j = str.find_first_of("+-", 1);
-		string monom = str.substr(0, j);
-		if (monom[monom.length() - 1] == '^') {
-			throw exception("Negative degree");
-		}
-		str.erase(0, j);
-
-		string coefficent = monom.substr(0, monom.find_first_of("xyz"));
-		TMonom tmp;
-		tmp.coeff_ = (coefficent == "" || coefficent == "+") ? 1 : (coefficent == "-") ? -1 : stod(coefficent);
-		monom.erase(0, monom.find_first_of("xyz"));
-
-		for (size_t i = 0; i < monom.size(); ++i) {
-			if (isalpha(monom[i])) {
-				int exp = 1;
-				if (monom[i + 1] == '^') {
-					size_t exp_start = i + 2;
-					while (isdigit(monom[exp_start])) {
-						exp_start++;
-					}
-					exp = stoi(monom.substr(i + 2, exp_start - i - 2));
-				}
-				switch (monom[i]) {
-				case 'x':
-					degree += exp * 100;
-					break;
-				case 'y':
-					degree += exp * 10;
-					break;
-				case 'z':
-					degree += exp * 1;
-					break;
-				default:
-					throw ("exp");
-					break;
-				}
-			}
-		}
-		tmp.degree_ = degree;
-		if (tmp.coeff_ != 0) {
-			this->InsertToSort(tmp);
-		}
-	}
-	if (this->monoms.IsEmpty()) {
-		TMonom zero(0, 0);
-		this->monoms.InsertFirst(zero);
-	}
-	this->name = this->ToString();
+double Polinom::operator()(double x, double y, double z)const
+{
+    double res = 0.0;
+    Polinom copy(*this);
+    copy.polinom.reset();
+    if (copy.polinom.getCurr() == nullptr)
+    {
+        return res;
+    }
+    while (!(copy.polinom.is_ended()))
+    {
+        res += copy.polinom.getCurr()->key(x, y, z);
+        copy.polinom.next();
+    }
+    return res;
 }
 

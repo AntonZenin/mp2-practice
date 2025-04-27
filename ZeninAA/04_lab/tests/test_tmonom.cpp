@@ -1,87 +1,137 @@
-#include <gtest.h>
 #include "tmonom.h"
+#include <gtest.h>
 
-TEST(TMonom, can_creat_empty_monom) {
-	TMonom new_monom;
-	EXPECT_EQ(new_monom.coeff_, 0);
-	EXPECT_EQ(new_monom.degree_, -1);
-}
 
-TEST(TMonom, can_creat_normal_monom) {
-	ASSERT_NO_THROW(TMonom new_monom(3, 111));
-}
-
-TEST(TMonom, check_correct_monom_data) {
-	TMonom new_monom(3, 111);
-	EXPECT_EQ(new_monom.coeff_, 3);
-	EXPECT_EQ(new_monom.degree_, 111);
-}
-
-TEST(TMonom, cannot_create_wrong_monom) {
-	ASSERT_ANY_THROW(TMonom new_monom(3, 1234));
-}
-
-TEST(TMonom, check_G_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 233);
-
-	EXPECT_TRUE(mon2 > mon1);
-}
-
-TEST(TMonom, check_GE_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 233);
-
-	EXPECT_TRUE(mon2 >= mon1);
-}
-
-TEST(TMonom, check_L_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 233);
-
-	EXPECT_TRUE(mon1 < mon2);
-}
-
-TEST(TMonom, check_LE_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 233);
-
-	EXPECT_TRUE(mon1 <= mon2);
-}
-
-TEST(TMonom, check_E_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 122);
-
-	EXPECT_TRUE(mon1 == mon2);
-}
-
-TEST(TMonom, check_NE_operation) {
-	TMonom mon1(5, 122);
-	TMonom mon2(5, 21);
-
-	EXPECT_TRUE(mon1 != mon2);
-}
-
-TEST(TMonom, can_assign_monom)
+TEST(Monom, can_create_monom)
 {
-	TMonom mon1(5, 122);
-	TMonom mon2;
-	mon2 = mon1;
-	EXPECT_EQ(5, mon2.coeff_);
-	EXPECT_EQ(122, mon2.degree_);
+    ASSERT_NO_THROW(Monom m);
 }
 
-TEST(TMonom, can_compare_monom_degrees_for_equal)
+TEST(Monom, can_create_monom_with_degree_and_coeff)
 {
-	TMonom mon1(5, 122);
-	TMonom mon2(3, 122);
-	EXPECT_TRUE(mon1 == mon2);
+    Monom m(7, 12);
+    EXPECT_EQ(7, m.GetDegree());
+    EXPECT_EQ(12, m.GetCoeff());
 }
 
-TEST(TMonom, can_compare_monom_degrees_for_not_equal)
+TEST(Monom, cant_create_monom_with_degree_out_of_range)
 {
-	TMonom mon1(5, 122);
-	TMonom mon2(3, 123);
-	EXPECT_TRUE(mon1 != mon2);
+    ASSERT_ANY_THROW(Monom m(-1, 12));
+}
+
+TEST(Monom, can_create_monom_from_string)
+{
+    Monom m("-x^2");
+    EXPECT_EQ(200, m.GetDegree());
+    EXPECT_EQ(-1, m.GetCoeff());
+}
+
+TEST(Monom, cant_create_monom_from_invalid_string)
+{
+    ASSERT_ANY_THROW(Monom m(" x ^2"));
+}
+
+TEST(Monom, cant_create_monom_from_string_with_invalid_monom)
+{
+    ASSERT_ANY_THROW(Monom m("x^20"));
+}
+
+TEST(Monom, can_get_degree)
+{
+    Monom m("x^2");
+    ASSERT_NO_THROW(m.GetDegree());
+    EXPECT_EQ(200, m.GetDegree());
+}
+
+TEST(Monom, can_get_coeff)
+{
+    Monom m("-x^2");
+    ASSERT_NO_THROW(m.GetCoeff());
+    EXPECT_EQ(-1, m.GetCoeff());
+}
+
+TEST(Monom, equal_monoms_are_equal)
+{
+    Monom m("-x^2");
+    Monom m1("-x^2");
+    EXPECT_TRUE(m == m);
+    EXPECT_TRUE(m == m1);
+}
+
+TEST(Monom, not_equal_monoms_are_not_equal)
+{
+    Monom m("x");
+    Monom m1("x^2");
+    EXPECT_TRUE(m != m1);
+}
+
+TEST(Monom, can_compare_monoms)
+{
+    Monom m("x");
+    Monom m1("x^2");
+    Monom m3("y*z");
+    EXPECT_TRUE(m >= m);
+    EXPECT_TRUE(m <= m);
+    EXPECT_TRUE(m < m1);
+    EXPECT_TRUE(m > m3);
+    EXPECT_FALSE(m < m3);
+    EXPECT_FALSE(m > m1);
+}
+
+TEST(Monom, can_sum_monoms_with_same_degree)
+{
+    Monom m("x");
+    Monom m1("2*x");
+    Monom m2;
+    ASSERT_NO_THROW(m2 = m + m1);
+    EXPECT_EQ(3, m2.GetCoeff());
+    EXPECT_EQ(100, m2.GetDegree());
+}
+
+TEST(Monom, cant_sum_monoms_with_diff_degree)
+{
+    Monom m("x");
+    Monom m1("2*x^6");
+    ASSERT_ANY_THROW(m + m1);
+}
+
+TEST(Monom, can_sub_monoms_with_same_degree)
+{
+    Monom m("x");
+    Monom m1("2*x");
+    Monom m2;
+    ASSERT_NO_THROW(m2 = m - m1);
+    EXPECT_EQ(-1, m2.GetCoeff());
+    EXPECT_EQ(100, m2.GetDegree());
+}
+
+TEST(Monom, cant_sub_monoms_with_diff_degree)
+{
+    Monom m("x");
+    Monom m1("2*x^6");
+    ASSERT_ANY_THROW(m - m1);
+}
+
+TEST(Monom, can_mul_monoms_within_degree_range)
+{
+    Monom m("x");
+    Monom m1("2*x");
+    Monom m2;
+    ASSERT_NO_THROW(m2 = m * m1);
+    EXPECT_EQ(2, m2.GetCoeff());
+    EXPECT_EQ(200, m2.GetDegree());
+}
+
+TEST(Monom, cant_mul_monoms_outside_of_degree_range)
+{
+    Monom m("x^9");
+    Monom m1("2*x");
+    Monom m2;
+    ASSERT_ANY_THROW(m2 = m * m1);
+}
+
+TEST(Monom, can_calculate_monom)
+{
+    Monom m("6*x^6*y");
+    EXPECT_EQ(0, m(1, 0, 12314));
 }

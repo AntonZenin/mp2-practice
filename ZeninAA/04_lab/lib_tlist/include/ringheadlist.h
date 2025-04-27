@@ -1,115 +1,105 @@
 #pragma once
-#include "list.h"
-#include <iostream>
-using namespace std;
+#include "headlist.h"
 
 template <typename TData>
-class headlist : public TList<TData> {
-protected:
-	TNode<TData>* pHead;
+class RingHeadList : public HeadList<TData>
+{
 public:
-	headlist();
-	headlist(const headlist<TData>& list);
-	~headlist();
-	void RemoveFirst();
-	void Clear();
-	void InsertFirst(const TData& data);
-	void InsertLast(const TData& data);
-	bool IsEnded() const;
-	const headlist<TData>& operator=(const headlist<TData>& l);
+    
+    RingHeadList();
+    RingHeadList(const RingHeadList<TData>& list);
+    void push_front(TNode<TData>* newNode);
+    void push_back(TNode<TData>* newNode);
+    void push_after(TNode<TData>* newNode, TData target_key);
+    void remove(TData target_key);
 
-	friend std::ostream& operator<<(std::ostream& out, headlist<TData>& ringList) {
-		TNode<TData>* tmp = ringList.pFirst;
-		int num = 1;
-		while (tmp != ringList.pHead) {
-			out << num << " node " << tmp->data << std::endl;
-			tmp = tmp->pNext;
-			num++;
-		}
-		return out;
-	}
+    
+    const RingHeadList<TData>& operator=(const RingHeadList<TData>& list);
 };
 
-template <typename TData>
-headlist<TData>::headlist() : TList<TData>() {
-	pHead = new TNode<TData>();
-	pHead->pNext = pHead;
-	pStop = pHead;
-}
 
 template <typename TData>
-headlist<TData>::headlist(const headlist<TData>& list) : TList<TData>(list) {
-	pHead = new TNode<TData>(list.pHead->data, pFirst);
-	if (!list.IsEmpty())
-		pLast->pNext = pHead;
-	else
-		pHead->pNext = pHead;
-	pStop = pHead;
-}
-
-template <typename TData>
-headlist<TData>::~headlist() {
-	delete pHead;
-	if (pLast != nullptr)
-		pLast->pNext = nullptr;
-	pStop = nullptr;
-}
-
-template <typename TData>
-void headlist<TData>::InsertFirst(const TData& data) {
-	TList<TData>::InsertFirst(data);
-	pHead->pNext = pFirst;
-	pStop = pHead;
-	pLast->pNext = pHead;
-}
-
-template <typename TData>
-void headlist<TData>::InsertLast(const TData& data) {
-	if (IsEmpty()) {
-		headlist<TData>::InsertFirst(data);
-		return;
-	}
-	TList<TData>::InsertLast(data);
-}
-
-template <typename TData>
-void headlist<TData>::RemoveFirst() {
-	TNode<TData>* first = pFirst;
-	pFirst = pFirst->pNext;
-	pHead->pNext = pFirst;
-	delete first;
-}
-
-template <typename TData>
-void headlist<TData>::Clear()
+RingHeadList<TData>::RingHeadList() : HeadList<TData>()
 {
-	TList<TData>::Clear();
-	pHead->pNext = pHead;
+    this->pLast = this->pHead;
+    this->pHead->pNext = this->pLast;
+    this->pStop = this->pHead;
 }
 
 template <typename TData>
-const headlist<TData>& headlist<TData>::operator=(const headlist<TData>& l) {
-	if (this == &l) return (*this);
-
-	if (l.IsEmpty())
-	{
-		pFirst = nullptr;
-		pLast = nullptr;
-		pCurr = nullptr;
-		pPrev = nullptr;
-		pStop = nullptr;
-		return *(this);
-	}
-
-	Clear();
-	Copy(l); 
-
-	return *(this);
+RingHeadList<TData>::RingHeadList(const RingHeadList<TData>& list) : HeadList(list)
+{
+    if (list.pFirst == nullptr)
+    {
+        this->pFirst = nullptr;
+        this->pLast = this->pHead;
+        this->pHead->pNext = this->pLast;
+        this->pStop = this->pHead;
+        return;
+    }
+    this->pStop = this->pHead;
+    this->pLast->pNext = this->pHead;
 }
 
 template <typename TData>
-bool headlist<TData>::IsEnded() const {
-	if (IsEmpty())
-		return true;
-	return pCurr == pStop;
+void RingHeadList<TData>::push_front(TNode<TData>* newNode)
+{
+    HeadList<TData>::push_front(newNode);
+    this->pLast->pNext = this->pHead;
+}
+
+template <typename TData>
+void RingHeadList<TData>::push_back(TNode<TData>* newNode)
+{
+    HeadList<TData>::push_back(newNode);
+    this->pLast->pNext = this->pHead;
+}
+
+template <typename TData>
+void RingHeadList<TData>::push_after(TNode<TData>* newNode, TData target_key)
+{
+    if (this->pLast->key == target_key)
+    {
+        this->push_back(newNode);
+        return;
+    }
+    if (this->pHead->key == target_key)
+    {
+        this->push_front(newNode);
+        return;
+    }
+    HeadList<TData>::push_after(newNode, target_key);
+}
+
+template <typename TData>
+void RingHeadList<TData>::remove(TData target_key)
+{
+    if (this->pFirst->key == target_key && this->pFirst == this->pLast)
+    {
+        this->pLast = this->pHead;
+        this->pLast->pNext = this->pHead;
+        this->pFirst = nullptr;
+        return;
+    }
+    HeadList<TData>::remove(target_key);
+    this->pLast->pNext = this->pHead;
+}
+
+template <typename TData>
+const RingHeadList<TData>& RingHeadList<TData>::operator=(const RingHeadList<TData>& list)
+{
+    if (list.pFirst == nullptr)
+    {
+        this->pFirst = nullptr;
+        this->pLast = this->pHead;
+        this->pHead->pNext = this->pLast;
+        this->pStop = this->pHead;
+        return *this;
+    }
+
+    HeadList<TData>::operator=(list);
+
+    this->pStop = this->pHead;
+    this->pLast->pNext = this->pHead;
+    return *this;
 }

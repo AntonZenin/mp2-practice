@@ -1,162 +1,206 @@
 #include "list.h"
 #include <gtest.h>
-
-TEST(TList, can_create_new_list)
+TEST(TNode, can_create_node)
 {
-	ASSERT_NO_THROW(TList<int> new_list);
+    ASSERT_NO_THROW(TNode<int> Node);
 }
 
-TEST(TList, list_is_empty_check)
+TEST(TNode, can_create_node_with_key)
 {
-	TList<int> list;
-	ASSERT_TRUE(list.IsEmpty());
+    TNode<int> Node(7);
+    EXPECT_EQ(Node.key, 7);
 }
 
-TEST(TList, check_non_empty)
+TEST(TNode, can_assign_nodes)
 {
-	TList<int> list;
-	list.InsertLast(2);
-	EXPECT_EQ(false, list.IsEmpty());
+    TNode<int> Node(7);
+    TNode<int> Node1(9);
+    ASSERT_NO_THROW(Node = Node1);
 }
 
-TEST(TList, can_InsertLast_in_the_list)
+TEST(TNode, assigned_nodes_have_same_keys)
 {
-	TList<int> list;
-	ASSERT_NO_THROW(list.InsertLast(1));
+    TNode<int> Node(7);
+    TNode<int> Node1(9);
+    Node1 = Node;
+    EXPECT_EQ(Node.key, Node1.key);
 }
 
-TEST(TList, can_insert_element_in_not_empty_list)
+TEST(TList, can_create_list)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	ASSERT_NO_THROW(list.InsertLast(2));
+    ASSERT_NO_THROW(TList<int> list);
 }
 
-TEST(TList, can_Remove_element)
+TEST(TList, can_copy_list)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	list.InsertLast(3);
-	list.Remove(3);
-	EXPECT_EQ(true, list.IsEnded());
+    TList<int> list;
+    ASSERT_NO_THROW(TList<int> list1(list));
 }
 
-TEST(TList, can_get_current_elemet)
+TEST(TList, copied_lists_are_equal)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	EXPECT_EQ(1, list.GetCurr()->data);
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    TList<int> list1(list);
+    EXPECT_TRUE(list == list1);
 }
 
-TEST(TList, can_clear_list)
+TEST(TList, copied_lists_have_different_memory)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	list.Clear();
-	EXPECT_EQ(true, list.IsEmpty());
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    TList<int> list;
+    list.push_front(Node);
+    TList<int> list1(list);
+    list1.push_front(Node1);
+    EXPECT_FALSE(list == list1);
 }
 
-TEST(TList, error_when_Remove_from_empty_list)
+TEST(TList, can_find_existing_key)
 {
-	TList<int> list;
-	ASSERT_ANY_THROW(list.Remove(5));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(TList, error_when_Remove_non_exist_elem)
+TEST(TList, cant_find_non_existing_key)
 {
-	TList<int> list;
-	list.InsertLast(4);
-	ASSERT_ANY_THROW(list.Remove(5));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_EQ(list.search(10), nullptr);
 }
 
-TEST(TList, can_InsertFirst_element)
+TEST(TList, can_push_front)
 {
-	TList<int> list;
-	list.InsertFirst(1);
-	ASSERT_NO_THROW(list.InsertFirst(2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    ASSERT_NO_THROW(list.push_front(Node));
 }
 
-TEST(TList, can_insert_after_element)
+TEST(TList, pushed_front_node_is_present)
 {
-	TList<int> list;
-	list.InsertFirst(1);
-	list.InsertFirst(2);
-	ASSERT_NO_THROW(list.InsertAfter(3, 2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(TList, next_element)
+TEST(TList, cant_push_back_empty_node)
 {
-	TList<int> list;
-	list.InsertFirst(1);
-	list.InsertFirst(2);
-	list.Next();
-	EXPECT_EQ(1, list.GetCurr()->data);
+    TList<int> list;
+    TNode<int>* node = nullptr;
+    ASSERT_ANY_THROW(list.push_back(node));
 }
 
-TEST(TList, reset_test)
+TEST(TList, can_push_back)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	list.Reset();
-	EXPECT_EQ(1, list.GetCurr()->data);
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    ASSERT_NO_THROW(list.push_back(Node));
 }
 
-TEST(TList, can_InsertBefore_element)
+TEST(TList, pushed_back_node_is_present)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	ASSERT_NO_THROW(list.InsertBefore(3, 2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_back(Node);
+    EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(TList, can_RemoveFirst_element)
+TEST(TList, can_push_after)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	ASSERT_NO_THROW(list.RemoveFirst());
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.push_after(Node1, 1));
 }
 
-TEST(TList, can_RemoveLast_element)
+TEST(TList, cant_push_after_non_existind_key)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	ASSERT_NO_THROW(list.Remove(2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.push_after(Node1, 100));
 }
 
-TEST(TList, can_Reset_to_First_element)
+TEST(TList, pushed_after_node_is_present)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	list.Reset();
-	EXPECT_EQ(1, list.GetCurr()->data);
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list.push_after(Node1, 1);
+    EXPECT_NE(list.search(10), nullptr);
 }
 
-TEST(TList, can_Search_for_element)
+TEST(TList, can_push_before)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	EXPECT_NE(nullptr, list.Search(2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.push_before(Node1, 1));
 }
 
-TEST(TList, can_InsertBefore_first_element)
+TEST(TList, cant_push_before_non_existind_key)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	ASSERT_NO_THROW(list.InsertBefore(3, 1));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.push_after(Node1, 100));
 }
 
-TEST(TList, can_Insert_last_element)
+TEST(TList, pushed_before_node_is_present)
 {
-	TList<int> list;
-	list.InsertLast(1);
-	list.InsertLast(2);
-	ASSERT_NO_THROW(list.InsertAfter(3, 2));
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list.push_after(Node1, 1);
+    EXPECT_NE(list.search(10), nullptr);
+}
+
+TEST(TList, can_remove_existing_key)
+{
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    ASSERT_NO_THROW(list.remove(1));
+}
+
+TEST(TList, cant_remove_non_existing_key)
+{
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    ASSERT_ANY_THROW(list.remove(10));
+}
+
+TEST(TList, removed_key_is_not_present)
+{
+    TList<int> list;
+    TNode<int>* Node = new TNode<int>(1);
+    list.push_front(Node);
+    list.remove(1);
+    EXPECT_EQ(list.search(1), nullptr);
+}
+
+TEST(TList, can_assign_lists)
+{
+    TList<int> list;
+    TList<int> list1;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list1.push_front(Node1);
+    ASSERT_NO_THROW(list = list1);
+}
+
+TEST(TList, assigned_lists_are_equal)
+{
+    TList<int> list;
+    TList<int> list1;
+    TNode<int>* Node = new TNode<int>(1), * Node1 = new TNode<int>(10);
+    list.push_front(Node);
+    list1.push_front(Node1);
+    list = list1;
+    EXPECT_TRUE(list == list1);
 }
