@@ -20,7 +20,7 @@ int main() {
         try {
             switch (option) {
             case 1:
-                cout << "Enter polynomial:\n";
+                cout << "Input polynomial:\n";
                 {
                     string input;
                     cin >> input;
@@ -95,26 +95,14 @@ void handle_addition(Polinom& p) {
 }
 
 void handle_subtraction(Polinom& p) {
-    cout << "constant(0) or polynomial(1)?\n";
-    char choice;
-    cin >> choice;
-
-    if (choice == '0') {
-        double constant;
-        cout << "Enter constant:\n";
-        cin >> constant;
-        cout << (p - constant);
-    }
-    else if (choice == '1') {
-        cout << "Enter second polynomial:\n";
-        string input;
-        cin >> input;
-        Polinom p1(input);
-        cout << (p - p1);
-    }
-    else {
-        throw invalid_argument("Invalid choice");
-    }
+    cout << "Enter second polynomial:\n";
+    string input;
+    cin >> input;
+    Polinom p1(input);
+    cout << (p - p1);
+     
+    
+    
 }
 
 void handle_multiplication(Polinom& p) {

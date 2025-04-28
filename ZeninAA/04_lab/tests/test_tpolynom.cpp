@@ -145,7 +145,7 @@ TEST(Polinom, sub)
     EXPECT_EQ(Polinom("2"), p1 - p2);
 }
 
-TEST(Polinom, mul)
+TEST(Polinom, mult)
 {
     Polinom p1("x+1");
     Polinom p2("x-1");

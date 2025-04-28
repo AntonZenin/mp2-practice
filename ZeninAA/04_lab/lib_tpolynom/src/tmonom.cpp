@@ -1,5 +1,7 @@
-/*#include "ringheadlist.h"
 #include "tpolynom.h"
+#include <math.h>
+#include "tmonom.h"
+#include "ringheadlist.h"
 #include "headlist.h"
 using namespace std;
 
@@ -20,78 +22,95 @@ Monom::Monom()
     coeff = 0;
 }
 
-Monom::Monom(const string& s) {
-    double coeff = 1.0;
-    int x_degree = 0, y_degree = 0, z_degree = 0;
-    size_t pos = 0;
+Monom::Monom(const string& s) //
+{
 
-    
-    if (pos < s.size() && s[pos] == '-') {
-        coeff = -1.0;
-        pos++;
-    }
-
-    
-    size_t num_end = pos;
-    while (num_end < s.size() && (isdigit(s[num_end]) || s[num_end] == '.')) {
-        num_end++;
-    }
-
-    if (num_end > pos) {
-        try {
-            coeff *= stod(s.substr(pos, num_end - pos));
+    string tocken;
+    char c;
+    double coeff = 1;
+    int i = 0, j = 0, k = 0;
+    int a = 0;
+    for (a; a < s.size(); a++)
+    {
+        c = s[a];
+        if (strchr("-0123456789xyz*^.", c) == nullptr)
+        {
+            throw "ERROR";
         }
-        catch (...) {
-            throw "Invalid coefficient format";
-        }
-        pos = num_end;
-    }
-
-    
-    while (pos < s.size()) {
-        if (s[pos] == '*') {
-            pos++; 
+        if (c == '-')
+        {
+            if (strchr("xyz", s[a + 1]))
+            {
+                coeff = -1;
+                continue;
+            }
+            tocken += c;
             continue;
         }
-
-        
-        if (s[pos] != 'x' && s[pos] != 'y' && s[pos] != 'z') {
-            throw "Invalid variable name (only x, y, z allowed)";
-        }
-
-        char var = s[pos];
-        pos++;
-        int degree = 1; 
-
-        
-        if (pos < s.size() && s[pos] == '^') {
-            pos++;
-            if (pos >= s.size() || !isdigit(s[pos])) {
-                throw "Missing degree after ^";
+        if (strchr("xyz", c))
+        {
+            if (s[a + 1] == '*' || (a + 1) == s.size())
+            {
+                switch (c)
+                {
+                case 'x':
+                    i++;
+                    break;
+                case 'y':
+                    j++;
+                    break;
+                case 'z':
+                    k++;
+                    break;
+                }
+                a++;
             }
-
-            degree = s[pos] - '0';
-            pos++;
-
-            if (degree <= 0 || degree >= 10) {
-                throw "Degree must be between 1 and 9";
+            continue;
+        }
+        if (c == '^')
+        {
+            if ((a + 2 < s.size()) && strchr("0123456789", s[a + 2]))
+            {
+                throw "WRONG DEGREE";
             }
+            switch (s[a - 1])
+            {
+            case 'x':
+                tocken += s[a + 1];
+                i = stoi(tocken);
+                tocken.clear();
+                break;
+            case 'y':
+                tocken += s[a + 1];
+                j = stoi(tocken);
+                tocken.clear();
+                break;
+            case 'z':
+                tocken += s[a + 1];
+                k = stoi(tocken);
+                tocken.clear();
+                break;
+            }
+            a++;
+            continue;
         }
-
-       
-        switch (var) {
-        case 'x': x_degree = degree; break;
-        case 'y': y_degree = degree; break;
-        case 'z': z_degree = degree; break;
+        if (c == '*')
+        {
+            if ((a - 2 > 0) && s[a - 2] == '^')
+            {
+                continue;
+            }
+            coeff = stof(tocken);
+            tocken.clear();
+            continue;
         }
+        tocken += c;
     }
-
-    if (coeff == 1.0 && x_degree == 0 && y_degree == 0 && z_degree == 0 && !s.empty()) {
-        throw "Invalid monom format";
+    if (!(tocken.empty()))
+    {
+        coeff = stof(tocken);
     }
-
-
-    this->degree = 100 * x_degree + 10 * y_degree + z_degree;
+    this->degree = 100 * i + 10 * j + k;
     this->coeff = coeff;
 }
 
@@ -162,4 +181,4 @@ double Monom::operator()(double x, double y, double z)const
     double res = 0.0;
     res = coeff * pow(x, (degree / 100)) * pow(y, ((degree / 10) % 10)) * pow(z, (degree % 10));
     return res;
-}*/
+}

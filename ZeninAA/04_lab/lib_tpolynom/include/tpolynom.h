@@ -11,8 +11,8 @@ using namespace std;
 class Polinom
 {
 private:
-    void insert(Monom& m);
-    Monom last_smaller(const Monom target_key); 
+    void insertion(Monom& m);
+    Monom last(const Monom target_key); 
 
 protected:
     string infix;
