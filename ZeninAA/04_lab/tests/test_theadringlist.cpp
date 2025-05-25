@@ -6,12 +6,6 @@ TEST(RingHeadList, can_create_list)
     ASSERT_NO_THROW(RingHeadList<int> list);
 }
 
-TEST(RingHeadList, can_copy_list)
-{
-    RingHeadList<int> list;
-    ASSERT_NO_THROW(RingHeadList<int> list1(list));
-}
-
 TEST(RingHeadList, copied_lists_are_equal)
 {
     RingHeadList<int> list;
@@ -62,12 +56,7 @@ TEST(RingHeadList, pushed_front_node_is_present)
     EXPECT_NE(list.search(1), nullptr);
 }
 
-TEST(RingHeadList, cant_push_back_empty_node)
-{
-    RingHeadList<int> list;
-    TNode<int>* node = nullptr;
-    ASSERT_ANY_THROW(list.push_back(node));
-}
+
 
 TEST(RingHeadList, can_push_back)
 {

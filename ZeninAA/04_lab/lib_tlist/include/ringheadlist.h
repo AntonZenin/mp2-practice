@@ -8,9 +8,9 @@ public:
     
     RingHeadList();
     RingHeadList(const RingHeadList<TData>& list);
-    void push_front(TNode<TData>* newNode);
-    void push_back(TNode<TData>* newNode);
-    void push_after(TNode<TData>* newNode, TData target_key);
+    virtual void push_front(TNode<TData>* newNode);
+    virtual void push_back(TNode<TData>* newNode);
+    virtual void push_after(TNode<TData>* newNode, TData target_key);
     void remove(TData target_key);
 
     
