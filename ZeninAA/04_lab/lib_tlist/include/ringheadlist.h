@@ -44,7 +44,7 @@ RingHeadList<TData>::RingHeadList(const RingHeadList<TData>& list) : HeadList(li
 template <typename TData>
 void RingHeadList<TData>::push_front(TNode<TData>* newNode)
 {
-    HeadList<TData>::push_front(newNode);
+    HeadList<TData>::push_front(newNode); 
     this->pLast->pNext = this->pHead;
 }
 

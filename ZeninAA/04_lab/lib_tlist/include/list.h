@@ -53,6 +53,7 @@ template <typename TData>
 TList<TData>::TList(const TList<TData>& list)
 {
     
+    
     copy(list);
     pStop = nullptr;
 }
@@ -62,6 +63,7 @@ TList<TData>::~TList()
 {
     
     clear();
+    
     
 }
 
@@ -136,6 +138,8 @@ TNode<TData>* TList<TData>::search(TData target_key)
         next();
     }
     return nullptr;
+    
+    
 }
 
 template <typename TData>
@@ -150,6 +154,8 @@ void TList<TData>::push_front(TNode<TData>* newNode)
     }
     newNode->pNext = pFirst;
     pFirst = newNode;
+
+    
 }
 
 template <typename TData>
@@ -245,18 +251,25 @@ void TList<TData>::remove(TData target_key)
     }
     pPrev->pNext = pCurr->pNext; 
     delete pCurr;
+    
 }
  
 template <typename TData>
 const TList<TData>& TList<TData>::operator=(const TList<TData>& list)
 {
     
-    if (this == &list)
-    {
+    TList<TData> listcopy(list);
+    if (this == &list) {
         return *this;
     }
-    clear();
-    copy(list);
+    if (pFirst != nullptr) {  
+        clear();
+    }
+    if (list.pFirst == nullptr) { 
+        pFirst = nullptr;
+        return *this;
+    }
+    copy(listcopy);
     return *this;
 }
 
@@ -278,7 +291,8 @@ bool TList<TData>::operator==(const TList<TData>& list) const
         listcopy.next();
         myself.next();
     }
-    return listcopy.is_ended() && myself.is_ended(); 
+    return listcopy.is_ended() && myself.is_ended();
+    
 }
 
 template <typename TData>
